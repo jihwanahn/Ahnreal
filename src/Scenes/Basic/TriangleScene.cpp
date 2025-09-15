@@ -5,6 +5,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <cstring>
+#include <vector>
 
 namespace AhnrealEngine {
 

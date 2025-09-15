@@ -9,7 +9,6 @@
 namespace AhnrealEngine {
     
     class VulkanDevice;
-    class VulkanSwapChain;
     class VulkanRenderer;
     class UISystem;
     class SceneManager;
@@ -41,7 +40,6 @@ namespace AhnrealEngine {
         VkSurfaceKHR surface;
         
         std::unique_ptr<VulkanDevice> device;
-        std::unique_ptr<VulkanSwapChain> swapChain;
         std::unique_ptr<VulkanRenderer> renderer;
         std::unique_ptr<UISystem> uiSystem;
         std::unique_ptr<SceneManager> sceneManager;

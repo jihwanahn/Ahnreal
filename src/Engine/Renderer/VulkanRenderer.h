@@ -22,7 +22,7 @@ namespace AhnrealEngine {
         void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
         void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
-        VulkanSwapChain* getSwapChain() const { return swapChain.get(); }
+        VulkanSwapChain* getSwapChain() const;
         VkRenderPass getSwapChainRenderPass() const;
         VkCommandBuffer getCurrentCommandBuffer() const { return commandBuffers[currentFrameIndex]; }
         int getFrameIndex() const { return currentFrameIndex; }

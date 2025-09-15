@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "../Renderer/VulkanRenderer.h"
 #include <algorithm>
+#include <vector>
 
 namespace AhnrealEngine {
 

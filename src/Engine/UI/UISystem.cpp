@@ -1,6 +1,7 @@
 #include "UISystem.h"
 #include "../Renderer/VulkanDevice.h"
 #include "../Renderer/VulkanRenderer.h"
+#include "../Renderer/VulkanSwapChain.h"
 #include "../Scene/Scene.h"
 
 #include <imgui.h>
@@ -44,14 +45,13 @@ namespace AhnrealEngine {
         init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
         init_info.Allocator = VK_NULL_HANDLE;
         init_info.CheckVkResultFn = nullptr;
+        init_info.RenderPass = renderer->getSwapChainRenderPass();
 
-        ImGui_ImplVulkan_Init(&init_info, renderer->getSwapChainRenderPass());
+        ImGui_ImplVulkan_Init(&init_info);
 
         auto commandBuffer = device->beginSingleTimeCommands();
-        ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+        ImGui_ImplVulkan_CreateFontsTexture();
         device->endSingleTimeCommands(commandBuffer);
-
-        ImGui_ImplVulkan_DestroyFontUploadObjects();
     }
 
     void UISystem::newFrame() {

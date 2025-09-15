@@ -49,7 +49,6 @@ namespace AhnrealEngine {
 
         void createImageWithInfo(const VkImageCreateInfo& imageInfo, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
         
-        VkRenderPass getSwapChainRenderPass() const;
 
     private:
         void createCommandPool();

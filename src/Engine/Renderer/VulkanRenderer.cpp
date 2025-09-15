@@ -87,8 +87,7 @@ namespace AhnrealEngine {
         }
 
         auto result = swapChain->submitCommandBuffers(&commandBuffer, &currentImageIndex);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || glfwGetWindowAttrib(window, GLFW_RESIZED)) {
-            glfwSetWindowAttrib(window, GLFW_RESIZED, GLFW_FALSE);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
             recreateSwapChain();
         }
         else if (result != VK_SUCCESS) {
@@ -135,6 +134,10 @@ namespace AhnrealEngine {
         assert(isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
         assert(commandBuffer == getCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
         vkCmdEndRenderPass(commandBuffer);
+    }
+
+    VulkanSwapChain* VulkanRenderer::getSwapChain() const {
+        return swapChain.get();
     }
 
     VkRenderPass VulkanRenderer::getSwapChainRenderPass() const {
