@@ -7,7 +7,7 @@
     "stb",
     {
       "name": "imgui",
-      "features": [ "wchar32" ]
+      "features": [ "wchar32", "glfw-binding", "vulkan-binding" ]
     },
     {
       "name": "ktx",
