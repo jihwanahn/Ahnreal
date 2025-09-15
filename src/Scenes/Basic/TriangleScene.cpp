@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <vector>
+#include <iostream>
 
 namespace AhnrealEngine {
 
@@ -146,8 +147,8 @@ namespace AhnrealEngine {
         vkFreeMemory(device->device(), stagingBufferMemory, nullptr);
 
         // Load shaders
-        auto vertShaderCode = readFile("build/shaders/triangle.vert.spv");
-        auto fragShaderCode = readFile("build/shaders/triangle.frag.spv");
+        auto vertShaderCode = readFile("shaders/triangle.vert.spv");
+        auto fragShaderCode = readFile("shaders/triangle.frag.spv");
 
         VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -277,6 +278,7 @@ namespace AhnrealEngine {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
         if (!file.is_open()) {
+            std::cout << "Failed to open shader file: " << filename << std::endl;
             throw std::runtime_error("failed to open file: " + filename);
         }
 
@@ -287,6 +289,7 @@ namespace AhnrealEngine {
         file.read(buffer.data(), fileSize);
         file.close();
 
+        std::cout << "Successfully loaded shader: " << filename << " (size: " << fileSize << " bytes)" << std::endl;
         return buffer;
     }
 }
