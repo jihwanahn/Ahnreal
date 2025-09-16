@@ -34,6 +34,13 @@ namespace AhnrealEngine {
         void setDevice(VulkanDevice* dev) { device = dev; }
 
     private:
+        struct PushConstantData {
+            glm::mat2 transform;
+            glm::vec3 color;
+            int useBarycentricColors;
+            float padding[3];
+        };
+
         void createVertexBuffer();
         void createGraphicsPipeline(VulkanRenderer* renderer);
 
@@ -46,14 +53,15 @@ namespace AhnrealEngine {
         VkPipeline graphicsPipeline = VK_NULL_HANDLE;
         
         std::vector<Vertex> vertices = {
-            {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+            {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+            {{0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}},
+            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
         };
         
         glm::vec3 triangleColor = {1.0f, 1.0f, 1.0f};
         float rotationSpeed = 1.0f;
         float currentRotation = 0.0f;
+        bool useBarycentricColors = false;
         
         VkShaderModule createShaderModule(const std::vector<char>& code);
         std::vector<char> readFile(const std::string& filename);

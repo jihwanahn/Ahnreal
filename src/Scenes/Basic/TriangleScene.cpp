@@ -7,6 +7,12 @@
 #include <cstring>
 #include <vector>
 #include <iostream>
+#ifdef _WIN32
+#include <direct.h>
+#define getcwd _getcwd
+#else
+#include <unistd.h>
+#endif
 
 namespace AhnrealEngine {
 
@@ -45,9 +51,15 @@ namespace AhnrealEngine {
     }
 
     void TriangleScene::initialize(VulkanRenderer* renderer) {
+        std::cout << "TriangleScene::initialize() called" << std::endl;
         device = renderer->getDevice();
+        std::cout << "Device set: " << (device ? "SUCCESS" : "FAILED") << std::endl;
+
         createVertexBuffer();
+        std::cout << "Vertex buffer created" << std::endl;
+
         createGraphicsPipeline(renderer);
+        std::cout << "Graphics pipeline created" << std::endl;
     }
 
     void TriangleScene::update(float deltaTime) {
@@ -58,11 +70,38 @@ namespace AhnrealEngine {
     }
 
     void TriangleScene::render(VulkanRenderer* renderer) {
-        if (!device || graphicsPipeline == VK_NULL_HANDLE) return;
+        if (!device) {
+            std::cout << "TriangleScene::render: Device is null!" << std::endl;
+            return;
+        }
+        if (graphicsPipeline == VK_NULL_HANDLE) {
+            std::cout << "TriangleScene::render: Graphics pipeline is null!" << std::endl;
+            return;
+        }
+        if (vertexBuffer == VK_NULL_HANDLE) {
+            std::cout << "TriangleScene::render: Vertex buffer is null!" << std::endl;
+            return;
+        }
 
         VkCommandBuffer commandBuffer = renderer->getCurrentCommandBuffer();
         
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+        // Create rotation matrix
+        float cosAngle = std::cos(currentRotation);
+        float sinAngle = std::sin(currentRotation);
+        glm::mat2 rotationMatrix = glm::mat2(
+            cosAngle, -sinAngle,
+            sinAngle, cosAngle
+        );
+
+        // Update push constants
+        PushConstantData pushConstants{};
+        pushConstants.transform = rotationMatrix;
+        pushConstants.color = triangleColor;
+        pushConstants.useBarycentricColors = useBarycentricColors ? 1 : 0;
+
+        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantData), &pushConstants);
 
         VkBuffer vertexBuffers[] = {vertexBuffer};
         VkDeviceSize offsets[] = {0};
@@ -72,21 +111,35 @@ namespace AhnrealEngine {
     }
 
     void TriangleScene::cleanup() {
+        std::cout << "TriangleScene::cleanup() called" << std::endl;
         if (device) {
+            std::cout << "Device exists, waiting for idle..." << std::endl;
+            // Wait for device to be idle before cleanup
+            vkDeviceWaitIdle(device->device());
+            std::cout << "Device idle complete" << std::endl;
+
             if (graphicsPipeline != VK_NULL_HANDLE) {
+                std::cout << "Destroying graphics pipeline..." << std::endl;
                 vkDestroyPipeline(device->device(), graphicsPipeline, nullptr);
                 graphicsPipeline = VK_NULL_HANDLE;
             }
             if (pipelineLayout != VK_NULL_HANDLE) {
+                std::cout << "Destroying pipeline layout..." << std::endl;
                 vkDestroyPipelineLayout(device->device(), pipelineLayout, nullptr);
                 pipelineLayout = VK_NULL_HANDLE;
             }
             if (vertexBuffer != VK_NULL_HANDLE) {
+                std::cout << "Destroying vertex buffer..." << std::endl;
                 vkDestroyBuffer(device->device(), vertexBuffer, nullptr);
-                vkFreeMemory(device->device(), vertexBufferMemory, nullptr);
                 vertexBuffer = VK_NULL_HANDLE;
             }
+            if (vertexBufferMemory != VK_NULL_HANDLE) {
+                std::cout << "Freeing vertex buffer memory..." << std::endl;
+                vkFreeMemory(device->device(), vertexBufferMemory, nullptr);
+                vertexBufferMemory = VK_NULL_HANDLE;
+            }
         }
+        std::cout << "TriangleScene::cleanup() completed" << std::endl;
     }
 
     void TriangleScene::onImGuiRender() {
@@ -98,6 +151,13 @@ namespace AhnrealEngine {
         ImGui::ColorEdit3("Triangle Color", &triangleColor.x);
         ImGui::SliderFloat("Rotation Speed", &rotationSpeed, 0.0f, 5.0f);
         ImGui::Text("Current Rotation: %.2f radians", currentRotation);
+        
+        ImGui::Separator();
+        ImGui::Checkbox("Use Barycentric Colors", &useBarycentricColors);
+        if (useBarycentricColors) {
+            ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.0f, 1.0f), "Showing barycentric coordinates as colors");
+            ImGui::Text("Red = Vertex 0, Green = Vertex 1, Blue = Vertex 2");
+        }
         
         if (ImGui::Button("Reset Rotation")) {
             currentRotation = 0.0f;
@@ -115,22 +175,19 @@ namespace AhnrealEngine {
     }
 
     void TriangleScene::createVertexBuffer() {
-        // Get device reference from a global or passed parameter
-        // For now, we'll set it during the render call
-        // This is a temporary solution - ideally device should be passed during initialization
-    }
+        if (!device) {
+            std::cout << "createVertexBuffer: Device is null!" << std::endl;
+            return;
+        }
 
-    void TriangleScene::createGraphicsPipeline(VulkanRenderer* renderer) {
-        // This will be called after device is set
-        if (!device) return;
-
-        // Create vertex buffer first
+        std::cout << "createVertexBuffer: vertices.size() = " << vertices.size() << std::endl;
         VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-        
+        std::cout << "createVertexBuffer: bufferSize = " << bufferSize << std::endl;
+
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
-        device->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+        device->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
             stagingBuffer, stagingBufferMemory);
 
         void* data;
@@ -145,6 +202,10 @@ namespace AhnrealEngine {
 
         vkDestroyBuffer(device->device(), stagingBuffer, nullptr);
         vkFreeMemory(device->device(), stagingBufferMemory, nullptr);
+    }
+
+    void TriangleScene::createGraphicsPipeline(VulkanRenderer* renderer) {
+        if (!device) return;
 
         // Load shaders
         auto vertShaderCode = readFile("shaders/triangle.vert.spv");
@@ -227,10 +288,16 @@ namespace AhnrealEngine {
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
         dynamicState.pDynamicStates = dynamicStates.data();
 
+        VkPushConstantRange pushConstantRange{};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(PushConstantData);
+
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 0;
-        pipelineLayoutInfo.pushConstantRangeCount = 0;
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
         if (vkCreatePipelineLayout(device->device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
             throw std::runtime_error("failed to create pipeline layout!");
@@ -275,10 +342,39 @@ namespace AhnrealEngine {
     }
 
     std::vector<char> TriangleScene::readFile(const std::string& filename) {
-        std::ifstream file(filename, std::ios::ate | std::ios::binary);
+        std::cout << "Attempting to load shader file: " << filename << std::endl;
+
+        // Print current working directory for debugging
+        char cwd[1024];
+        if (getcwd(cwd, sizeof(cwd)) != nullptr) {
+            std::cout << "Current working directory: " << cwd << std::endl;
+        }
+
+        // Try different paths
+        std::vector<std::string> pathsToTry = {
+            filename,
+            "Debug/" + filename,
+            "Release/" + filename,
+            "build/Debug/" + filename,
+            "../" + filename,
+            "./" + filename
+        };
+
+        std::ifstream file;
+        std::string actualPath;
+
+        for (const auto& path : pathsToTry) {
+            file.open(path, std::ios::ate | std::ios::binary);
+            if (file.is_open()) {
+                actualPath = path;
+                std::cout << "Successfully opened shader at: " << actualPath << std::endl;
+                break;
+            }
+            std::cout << "Failed to open: " << path << std::endl;
+        }
 
         if (!file.is_open()) {
-            std::cout << "Failed to open shader file: " << filename << std::endl;
+            std::cout << "Failed to open shader file in any location: " << filename << std::endl;
             throw std::runtime_error("failed to open file: " + filename);
         }
 

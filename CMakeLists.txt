@@ -43,6 +43,7 @@ set(ENGINE_UI_SOURCES
 
 set(SCENE_SOURCES
     src/Scenes/Basic/TriangleScene.cpp
+    src/Scenes/Basic/CubeScene.cpp
 )
 
 set(ALL_SOURCES
@@ -76,30 +77,32 @@ find_program(GLSL_VALIDATOR glslangValidator HINTS
     PATHS ${CMAKE_CURRENT_BINARY_DIR}/vcpkg_installed/x64-windows/tools/vulkan
 )
 
-# Temporarily disable automatic shader compilation
-# file(GLOB_RECURSE GLSL_SOURCE_FILES
-#     "${PROJECT_SOURCE_DIR}/src/Shaders/*.frag"
-#     "${PROJECT_SOURCE_DIR}/src/Shaders/*.vert"
-#     "${PROJECT_SOURCE_DIR}/src/Shaders/*.comp"
-# )
+# Automatic shader compilation
+file(GLOB_RECURSE GLSL_SOURCE_FILES
+    "${PROJECT_SOURCE_DIR}/src/Shaders/*.frag"
+    "${PROJECT_SOURCE_DIR}/src/Shaders/*.vert"
+    "${PROJECT_SOURCE_DIR}/src/Shaders/*.comp"
+)
 
-# foreach(GLSL ${GLSL_SOURCE_FILES})
-#   get_filename_component(FILE_NAME ${GLSL} NAME)
-#   set(SPIRV "${PROJECT_BINARY_DIR}/shaders/${FILE_NAME}.spv")
-#   add_custom_command(
-#     OUTPUT ${SPIRV}
-#     COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/shaders/"
-#     COMMAND ${GLSL_VALIDATOR} -V ${GLSL} -o ${SPIRV}
-#     DEPENDS ${GLSL})
-#   list(APPEND SPIRV_BINARY_FILES ${SPIRV})
-# endforeach(GLSL)
+foreach(GLSL ${GLSL_SOURCE_FILES})
+  get_filename_component(FILE_NAME ${GLSL} NAME)
+  set(SPIRV "${PROJECT_BINARY_DIR}/shaders/${FILE_NAME}.spv")
+  add_custom_command(
+    OUTPUT ${SPIRV}
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/shaders/"
+    COMMAND ${GLSL_VALIDATOR} -V ${GLSL} -o ${SPIRV}
+    DEPENDS ${GLSL})
+  list(APPEND SPIRV_BINARY_FILES ${SPIRV})
+endforeach(GLSL)
 
-# add_custom_target(
-#     shaders 
-#     DEPENDS ${SPIRV_BINARY_FILES}
-# )
+add_custom_target(
+    shaders
+    DEPENDS ${SPIRV_BINARY_FILES}
+    COMMENT "Compiling shaders"
+)
 
-# add_dependencies(${PROJECT_NAME} shaders)
+add_dependencies(${PROJECT_NAME} shaders)
 
 # Create shaders directory in source
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src/Shaders")
+

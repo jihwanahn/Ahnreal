@@ -21,6 +21,7 @@ namespace AhnrealEngine {
         void cleanup();
 
         void setSceneManager(SceneManager* sceneManager) { this->sceneManager = sceneManager; }
+        void setExitCallback(std::function<void()> callback) { exitCallback = callback; }
 
     private:
         void renderMainMenuBar();
@@ -34,6 +35,7 @@ namespace AhnrealEngine {
         
         VkDescriptorPool imguiPool;
         bool showSceneSelector = true;
+        std::function<void()> exitCallback;
         
         void createDescriptorPool();
     };

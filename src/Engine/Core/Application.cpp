@@ -4,6 +4,7 @@
 #include "../UI/UISystem.h"
 #include "../Scene/Scene.h"
 #include "../../Scenes/Basic/TriangleScene.h"
+#include "../../Scenes/Basic/CubeScene.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -31,9 +32,16 @@ namespace AhnrealEngine {
         
         auto triangleScene = std::make_unique<TriangleScene>();
         sceneManager->addScene(std::move(triangleScene));
+        
+        auto cubeScene = std::make_unique<CubeScene>();
+        sceneManager->addScene(std::move(cubeScene));
+        
         sceneManager->setCurrentScene("Triangle Scene", renderer.get());
         
         uiSystem->setSceneManager(sceneManager.get());
+        uiSystem->setExitCallback([this]() {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        });
     }
 
     Application::~Application() {
@@ -97,6 +105,11 @@ namespace AhnrealEngine {
     }
 
     void Application::cleanup() {
+        // Ensure all GPU operations are finished before cleanup
+        if (device) {
+            vkDeviceWaitIdle(device->device());
+        }
+        
         sceneManager.reset();
         uiSystem.reset();
         renderer.reset();

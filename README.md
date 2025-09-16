@@ -56,9 +56,19 @@ AhnrealEngine VK는 컴퓨터 그래픽스와 Vulkan API를 학습하기 위한 
 
 ### 기본 렌더링 씬
 - [x] **Triangle Scene**: 기본 삼각형 렌더링
-  - 정점 버퍼 생성
+  - 정점 버퍼 생성 및 관리
   - 그래픽스 파이프라인 설정
   - 실시간 색상/회전 조정
+  - Barycentric coordinate 컬러링
+  - Push constants를 통한 GPU 데이터 전송
+
+- [x] **Cube Scene**: 3D 큐브 렌더링
+  - 3D 정점 버퍼 및 인덱스 버퍼
+  - Uniform Buffer를 통한 MVP 매트릭스
+  - 실시간 회전 및 색상 조정
+  - 회전축 조절 UI
+  - Wireframe/Solid 모드 전환
+  - Barycentric coordinate 컬러링
 
 ## 📷 스크린샷
 
@@ -88,7 +98,8 @@ AhnrealEngine_VK/
 │   │       └── ...
 │   ├── Scenes/                 # 렌더링 씬 구현
 │   │   ├── Basic/              # 기초 렌더링
-│   │   │   └── TriangleScene.h/.cpp  # 삼각형 렌더링
+│   │   │   ├── TriangleScene.h/.cpp  # 삼각형 렌더링
+│   │   │   └── CubeScene.h/.cpp      # 3D 큐브 렌더링
 │   │   ├── Rendering/          # 고급 렌더링 기법 (예정)
 │   │   ├── Shader/             # 셰이더 실험 (예정)
 │   │   ├── RayTracing/         # 레이트레이싱 (예정)
@@ -96,6 +107,8 @@ AhnrealEngine_VK/
 │   ├── Shaders/                # GLSL 셰이더 파일
 │   │   ├── triangle.vert       # 삼각형 정점 셰이더
 │   │   ├── triangle.frag       # 삼각형 프래그먼트 셰이더
+│   │   ├── cube.vert           # 큐브 정점 셰이더 (MVP 변환)
+│   │   ├── cube.frag           # 큐브 프래그먼트 셰이더
 │   │   └── ...
 │   └── main.cpp                # 엔트리 포인트
 ├── build/                      # 빌드 출력
@@ -126,13 +139,8 @@ mkdir build
 cd build
 cmake .. -G "Visual Studio 17 2022"
 
-# 4. 셰이더 컴파일 (수동)
-mkdir shaders
-"C:\VulkanSDK\[version]\Bin\glslangValidator.exe" -V ../src/Shaders/triangle.vert -o shaders/triangle.vert.spv
-"C:\VulkanSDK\[version]\Bin\glslangValidator.exe" -V ../src/Shaders/triangle.frag -o shaders/triangle.frag.spv
-
-# 5. Visual Studio에서 빌드
-# AhnrealEngine_VK.sln 파일을 Visual Studio로 열어서 빌드
+# 4. 프로젝트 빌드 (셰이더 자동 컴파일 포함)
+cmake --build . --config Debug
 ```
 
 ### Linux
@@ -153,21 +161,30 @@ make -j$(nproc)
 2. **Vulkan 초기화** - 인스턴스, 디바이스, 스왑체인
 3. **렌더링 파이프라인** - 기본 그래픽스 파이프라인
 4. **ImGui 통합** - 실시간 UI 시스템
-5. **씬 관리 시스템** - 동적 씬 전환
+5. **씬 관리 시스템** - 동적 씬 전환 (안정화 완료)
 6. **기본 삼각형 렌더링** - 첫 번째 렌더링 씬
+7. **3D 큐브 렌더링** - Uniform Buffer 및 3D 변환
+8. **자동 셰이더 시스템** - CMake 기반 자동 컴파일
+9. **다중 렌더링 모드** - Wireframe/Solid, Barycentric 컬러링
 
-### 🔄 진행 중인 작업
-- **빌드 시스템 최적화** - 자동 셰이더 컴파일 개선
-- **오류 처리 강화** - Vulkan 검증 레이어 통합
-- **문서화** - 코드 주석 및 가이드 작성
+### 🔄 최근 개선 사항
+- **씬 전환 안정화** - CubeScene ↔ TriangleScene 크래시 문제 해결
+- **셰이더 경로 관리** - 자동 컴파일 및 경로 해결
+- **UI 기능 확장** - 회전축 조절, 컬러 모드 전환
+- **빌드 시스템 개선** - 자동 셰이더 컴파일 통합
 
 ## 🚀 로드맵
 
 ### Phase 1: 기초 렌더링 (완료)
 - [x] 엔진 아키텍처 설계
 - [x] Vulkan 초기화 및 기본 렌더링
-- [x] UI 시스템 구현
-- [x] 삼각형 렌더링 씬
+- [x] UI 시스템 구현 (ImGui)
+- [x] 삼각형 렌더링 씬 (Push Constants)
+- [x] 큐브 렌더링 씬 (Uniform Buffers, MVP)
+- [x] 씬 전환 시스템 안정화
+- [x] 자동 셰이더 컴파일 시스템
+- [x] Wireframe/Solid 렌더링 모드
+- [x] Barycentric coordinate 시각화
 
 ### Phase 2: 3D 렌더링 (다음 단계)
 - [ ] **카메라 시스템**

@@ -73,11 +73,15 @@ namespace AhnrealEngine {
     }
 
     void UISystem::cleanup() {
-        if (imguiPool != VK_NULL_HANDLE) {
-            ImGui_ImplVulkan_Shutdown();
-            ImGui_ImplGlfw_Shutdown();
-            ImGui::DestroyContext();
+        if (device) {
+            vkDeviceWaitIdle(device->device());
+        }
+        
+        ImGui_ImplVulkan_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
 
+        if (imguiPool != VK_NULL_HANDLE && device) {
             vkDestroyDescriptorPool(device->device(), imguiPool, nullptr);
             imguiPool = VK_NULL_HANDLE;
         }
@@ -112,6 +116,16 @@ namespace AhnrealEngine {
 
     void UISystem::renderMainMenuBar() {
         if (ImGui::BeginMainMenuBar()) {
+            if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("Exit", "Alt+F4")) {
+                    if (exitCallback) {
+                        exitCallback();
+                    } else {
+                        glfwSetWindowShouldClose(window, GLFW_TRUE);
+                    }
+                }
+                ImGui::EndMenu();
+            }
             if (ImGui::BeginMenu("View")) {
                 ImGui::MenuItem("Scene Selector", nullptr, &showSceneSelector);
                 ImGui::EndMenu();
