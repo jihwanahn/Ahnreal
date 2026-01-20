@@ -25,6 +25,8 @@ endif()
 # Source files
 set(ENGINE_CORE_SOURCES
     src/Engine/Core/Application.cpp
+    src/Engine/Core/Camera.cpp
+    src/Engine/Core/Input.cpp
 )
 
 set(ENGINE_RENDERER_SOURCES
@@ -44,6 +46,7 @@ set(ENGINE_UI_SOURCES
 set(SCENE_SOURCES
     src/Scenes/Basic/TriangleScene.cpp
     src/Scenes/Basic/CubeScene.cpp
+    src/Scenes/Basic/CameraTestScene.cpp
 )
 
 set(ALL_SOURCES
