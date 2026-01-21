@@ -56,7 +56,7 @@ namespace AhnrealEngine {
         QueueFamilyIndices indices = findQueueFamilies(physicalDevice_);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-        std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+        std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value(), indices.computeFamily.value()};
 
         float queuePriority = 1.0f;
         for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -70,6 +70,7 @@ namespace AhnrealEngine {
 
         VkPhysicalDeviceFeatures deviceFeatures{};
         deviceFeatures.samplerAnisotropy = VK_TRUE;
+        deviceFeatures.multiDrawIndirect = VK_TRUE; // Enable Indirect Draw for GPU Instancing
 
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -94,6 +95,7 @@ namespace AhnrealEngine {
 
         vkGetDeviceQueue(device_, indices.graphicsFamily.value(), 0, &graphicsQueue_);
         vkGetDeviceQueue(device_, indices.presentFamily.value(), 0, &presentQueue_);
+        vkGetDeviceQueue(device_, indices.computeFamily.value(), 0, &computeQueue_);
     }
 
     void VulkanDevice::createCommandPool() {
@@ -139,6 +141,9 @@ namespace AhnrealEngine {
         for (const auto& queueFamily : queueFamilies) {
             if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
                 indices.graphicsFamily = i;
+            }
+            if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+                indices.computeFamily = i;
             }
             VkBool32 presentSupport = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface_, &presentSupport);

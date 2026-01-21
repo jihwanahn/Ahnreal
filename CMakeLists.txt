@@ -50,6 +50,7 @@ set(SCENE_SOURCES
     src/Scenes/Basic/CubeScene.cpp
     src/Scenes/Basic/CameraTestScene.cpp
     src/Scenes/Basic/ModelLoadingScene.cpp
+    src/Scenes/Performance/InstancingScene.cpp
 )
 
 set(ALL_SOURCES

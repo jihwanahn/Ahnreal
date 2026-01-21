@@ -1,0 +1,63 @@
+#version 450
+
+layout (local_size_x = 256) in;
+
+// Indirect Draw Command Structure
+struct VkDrawIndexedIndirectCommand {
+    uint indexCount;
+    uint instanceCount;
+    uint firstIndex;
+    int vertexOffset;
+    uint firstInstance;
+};
+
+// Bindings
+layout(set = 0, binding = 0) buffer InstanceData {
+    mat4 modelMatrix[];
+    // We can pack bounding sphere radius in w component of position if needed, 
+    // or assume unit cube scaled by matrix.
+    // For simplicity, let's assume we have separate sphere data or extract from matrix scale.
+} instances;
+
+layout(set = 0, binding = 1) uniform CameraData {
+    mat4 view;
+    mat4 proj;
+    vec4 frustumPlanes[6]; // xyz: normal, w: distance
+} camera;
+
+layout(set = 0, binding = 2) buffer IndirectDrawBuffer {
+    VkDrawIndexedIndirectCommand command;
+} indirect;
+
+layout(set = 0, binding = 3) buffer VisibleInstances {
+    uint indices[];
+} visibleInstances;
+
+layout(push_constant) uniform PushConstants {
+    uint totalInstanceCount;
+} push;
+
+bool isVisible(mat4 model) {
+    // Basic sphere culling
+    vec3 pos = vec3(model[3]); 
+    // Extract scale roughly
+    float maxScale = max(max(length(model[0]), length(model[1])), length(model[2]));
+    float radius = maxScale * 0.866; // sqrt(3)/2 for unit cube
+
+    for (int i = 0; i < 6; i++) {
+        if (dot(camera.frustumPlanes[i].xyz, pos) + camera.frustumPlanes[i].w < -radius) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    if (idx >= push.totalInstanceCount) return;
+
+    if (isVisible(instances.modelMatrix[idx])) {
+        uint visibleIdx = atomicAdd(indirect.command.instanceCount, 1);
+        visibleInstances.indices[visibleIdx] = idx;
+    }
+}

@@ -15,6 +15,7 @@ namespace AhnrealEngine {
         
         virtual void initialize() = 0;
         virtual void initialize(VulkanRenderer* renderer) { initialize(); }
+        virtual void preRender(VulkanRenderer* renderer) {}
         virtual void update(float deltaTime) = 0;
         virtual void render(VulkanRenderer* renderer) = 0;
         virtual void cleanup() = 0;
@@ -35,9 +36,12 @@ namespace AhnrealEngine {
         void setCurrentScene(const std::string& name);
         void setCurrentScene(const std::string& name, VulkanRenderer* renderer);
         void update(float deltaTime);
+        void preRender(VulkanRenderer* renderer);
         void render(VulkanRenderer* renderer);
         void renderUI();
         void cleanup();
+        
+        bool processPendingSwitch(VulkanRenderer* renderer);
         
         Scene* getCurrentScene() const { return currentScene; }
         const std::vector<std::unique_ptr<Scene>>& getScenes() const { return scenes; }
@@ -45,5 +49,6 @@ namespace AhnrealEngine {
     private:
         std::vector<std::unique_ptr<Scene>> scenes;
         Scene* currentScene = nullptr;
+        Scene* nextScene = nullptr;
     };
 }

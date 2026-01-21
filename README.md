@@ -48,6 +48,8 @@ AhnrealEngine VK는 컴퓨터 그래픽스와 Vulkan API를 학습하기 위한 
 - [x] **Shader System**: GLSL 셰이더 로딩 및 컴파일
 - [x] **Vertex Buffer Management**: 정점 데이터 관리
 - [x] **Graphics Pipeline**: 렌더링 상태 관리
+- [x] **Compute Shader**: GPGPU 연산 지원 (Culling)
+- [x] **Indirect Draw**: GPU-Driven 렌더링 지원
 
 ### UI & 씬 관리
 - [x] **ImGui Integration**: 실시간 파라미터 조정 UI
@@ -70,6 +72,17 @@ AhnrealEngine VK는 컴퓨터 그래픽스와 Vulkan API를 학습하기 위한 
   - 회전축 조절 UI
   - Wireframe/Solid 모드 전환
   - Barycentric coordinate 컬러링
+
+- [x] **Model Loading Scene**: 3D 모델 로딩
+  - Assimp 라이브러리 연동
+  - .obj, .fbx 등 다양한 포맷 지원
+  - Orbit Camera를 통한 원형 관찰
+
+- [x] **GPU Instancing Scene**: 대규모 인스턴스 렌더링
+  - 10,000개 이상의 큐브 인스턴스
+  - Compute Shader 기반 Frustum Culling
+  - Indirect Draw를 통한 DrawCall 최적화
+  - SSBO (Shader Storage Buffer Object) 활용
 
 ## 📷 스크린샷
 
@@ -169,11 +182,11 @@ make -j$(nproc)
 9. **다중 렌더링 모드** - Wireframe/Solid, Barycentric 컬러링
 
 ### 🔄 최근 개선 사항
-- **씬 전환 안정화** - CubeScene ↔ TriangleScene 크래시 문제 해결 (WaitIdle 동기화)
+- **씬 전환 안정화** - Deferred Scene Switching 구조 도입으로 리소스 파괴 경합 해결
 - **입력 시스템 개선** - 마우스 휠 스크롤 프레임 누락 문제 해결
-- **셰이더 경로 관리** - 자동 컴파일 및 경로 해결
-- **UI 기능 확장** - 회전축 조절, 컬러 모드 전환
-- **빌드 시스템 개선** - 자동 셰이더 컴파일 통합
+- **셰이더 경로 관리** - 실행 경로에 상관없는 강건한 파일 로딩 구현
+- **리소스 관리 강화** - 이중 해제(Double Free) 방지 및 안전한 Cleanup 로직 적용
+- **GPU Instancing** - Compute Shader Culling + Indirect Draw 구현 완료
 
 ## 💡 기술적 특징 (Technical Highlights)
 
@@ -210,10 +223,10 @@ make -j$(nproc)
   - [x] 뷰/프로젝션 매트릭스
   - [x] 1인칭/3인칭(Orbit) 카메라
   - [x] 마우스/키보드 입력
-- [ ] **3D 메시 렌더링**
-  - OBJ/FBX 모델 로딩
-  - 정점/인덱스 버퍼 최적화
-  - 여러 오브젝트 렌더링
+- [x] **3D 메시 렌더링**
+  - [x] OBJ/FBX 모델 로딩 (Assimp)
+  - [x] 정점/인덱스 버퍼 최적화
+  - [x] Mesh/Model 클래스 추상화
 - [ ] **변환 시스템**
   - 월드/로컬 좌표계
   - 계층적 변환
@@ -255,11 +268,13 @@ make -j$(nproc)
   - 서브서피스 스캐터링
   - 셸 셰이딩 (모피/잔디)
   - 볼류메트릭 렌더링
-- [ ] **최적화 & 성능 엔지니어링 (JD 우대사항 반영)**
-  - 프러스텀 컬링 (Frustum Culling)
-  - 오클루전 컬링 (Occlusion Culling)
-  - LOD (Level of Detail) 시스템
-  - GPU-Driven 렌더링 (Indirect Draw)
+- [ ] **최적화 & 성능 엔지니어링**
+- [x] **프러스텀 컬링 (Frustum Culling)**
+  - Compute Shader 기반 GPU Culling 구현
+- [ ] **오클루전 컬링 (Occlusion Culling)**
+- [ ] **LOD (Level of Detail) 시스템**
+- [x] **GPU-Driven 렌더링 (Indirect Draw)**
+  - `vkCmdDrawIndexedIndirect` 활용
   - 멀티스레드 커맨드 레코딩
 
 ### Phase 6: 레이트레이싱 (RTX)

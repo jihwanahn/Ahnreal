@@ -178,6 +178,9 @@ void ModelLoadingScene::cleanup() {
             vkDestroyBuffer(device->device(), uniformBuffers[i], nullptr);
             vkFreeMemory(device->device(), uniformBuffersMemory[i], nullptr);
         }
+        uniformBuffers.clear();
+        uniformBuffersMemory.clear();
+        uniformBuffersMapped.clear();
     }
     // Model is unique_ptr, handled automatically
 }

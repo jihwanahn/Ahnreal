@@ -3,6 +3,7 @@
 #include "../../Scenes/Basic/CubeScene.h"
 #include "../../Scenes/Basic/TriangleScene.h"
 #include "../../Scenes/Basic/ModelLoadingScene.h"
+#include "../../Scenes/Performance/InstancingScene.h"
 #include "../Renderer/VulkanDevice.h"
 #include "../Renderer/VulkanRenderer.h"
 #include "../Scene/Scene.h"
@@ -48,7 +49,10 @@ Application::Application() {
   auto modelLoadingScene = std::make_unique<ModelLoadingScene>();
   sceneManager->addScene(std::move(modelLoadingScene));
 
-  sceneManager->setCurrentScene("Triangle Scene", renderer.get());
+  auto instancingScene = std::make_unique<InstancingScene>();
+  sceneManager->addScene(std::move(instancingScene));
+
+  sceneManager->setCurrentScene("GPU Instancing Culling", renderer.get());
 
   uiSystem->setSceneManager(sceneManager.get());
   uiSystem->setExitCallback(
@@ -100,8 +104,11 @@ void Application::mainLoop() {
             .count();
     currentTime = newTime;
 
+    sceneManager->processPendingSwitch(renderer.get());
+
     if (auto commandBuffer = renderer->beginFrame()) {
       sceneManager->update(frameTime);
+      sceneManager->preRender(renderer.get());
 
       renderer->beginSwapChainRenderPass(commandBuffer);
       sceneManager->render(renderer.get());

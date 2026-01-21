@@ -10,9 +10,10 @@ namespace AhnrealEngine {
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;
+        std::optional<uint32_t> computeFamily;
 
         bool isComplete() {
-            return graphicsFamily.has_value() && presentFamily.has_value();
+            return graphicsFamily.has_value() && presentFamily.has_value() && computeFamily.has_value();
         }
     };
 
@@ -33,6 +34,7 @@ namespace AhnrealEngine {
         VkPhysicalDevice physicalDevice() { return physicalDevice_; }
         VkQueue graphicsQueue() { return graphicsQueue_; }
         VkQueue presentQueue() { return presentQueue_; }
+        VkQueue computeQueue() { return computeQueue_; }
         VkCommandPool getCommandPool() { return commandPool; }
 
         SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice_); }
@@ -63,6 +65,7 @@ namespace AhnrealEngine {
         VkSurfaceKHR surface_;
         VkQueue graphicsQueue_;
         VkQueue presentQueue_;
+        VkQueue computeQueue_;
 
         const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
         const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};

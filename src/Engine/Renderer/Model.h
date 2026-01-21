@@ -26,6 +26,8 @@ public:
 
   void draw(VkCommandBuffer commandBuffer);
 
+    const std::vector<std::unique_ptr<Mesh>>& getMeshes() const { return meshes; }
+
 private:
   void loadModel(const std::string &path);
   void processNode(aiNode *node, const aiScene *scene);

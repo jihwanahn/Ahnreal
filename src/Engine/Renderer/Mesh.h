@@ -35,6 +35,10 @@ public:
 
   void draw(VkCommandBuffer commandBuffer);
 
+    VkBuffer getVertexBuffer() const { return vertexBuffer; }
+    VkBuffer getIndexBuffer() const { return indexBuffer; }
+    uint32_t getIndexCount() const { return indexCount; }
+
 private:
   void createVertexBuffer(const std::vector<Vertex> &vertices);
   void createIndexBuffer(const std::vector<uint32_t> &indices);
