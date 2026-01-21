@@ -17,6 +17,7 @@ double Input::lastMouseY = 0.0;
 double Input::mouseDeltaX = 0.0;
 double Input::mouseDeltaY = 0.0;
 float Input::scrollDeltaY = 0.0f;
+float Input::scrollAccumulator = 0.0f;
 bool Input::firstMouse = true;
 bool Input::mouseCaptured = false;
 
@@ -54,7 +55,8 @@ void Input::update() {
   lastMouseY = mouseY;
 
   // Reset scroll delta (scroll is an event, not continuous state)
-  scrollDeltaY = 0.0f;
+  scrollDeltaY = scrollAccumulator;
+  scrollAccumulator = 0.0f;
 }
 
 bool Input::isKeyPressed(int key) {
@@ -165,7 +167,7 @@ void Input::cursorPosCallback(GLFWwindow *window, double xpos, double ypos) {
 }
 
 void Input::scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
-  scrollDeltaY = static_cast<float>(yoffset);
+  scrollAccumulator += static_cast<float>(yoffset);
 
   if (externalScrollCallback) {
     externalScrollCallback(static_cast<float>(xoffset),

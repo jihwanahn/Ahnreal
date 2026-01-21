@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "../Renderer/VulkanRenderer.h"
+#include "../Renderer/VulkanDevice.h"
 #include <algorithm>
 #include <vector>
 
@@ -38,6 +39,7 @@ namespace AhnrealEngine {
 
         if (it != scenes.end()) {
             if (currentScene) {
+                vkDeviceWaitIdle(renderer->getDevice()->device());
                 currentScene->cleanup();
             }
             currentScene = it->get();

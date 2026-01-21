@@ -61,6 +61,7 @@ private:
   static double lastMouseX, lastMouseY;
   static double mouseDeltaX, mouseDeltaY;
   static float scrollDeltaY;
+  static float scrollAccumulator;
   static bool firstMouse;
   static bool mouseCaptured;
 
