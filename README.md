@@ -19,19 +19,20 @@ AhnrealEngine VK는 컴퓨터 그래픽스와 Vulkan API를 학습하기 위한 
 
 ### 주요 목표
 - **교육적 목적**: 컴퓨터 그래픽스 이론을 실제 구현으로 학습
-- **모듈화**: 각 그래픽스 기법을 독립적인 씬으로 구현
-- **실험 환경**: 새로운 렌더링 기법을 쉽게 테스트할 수 있는 프레임워크
-- **성능 최적화**: Vulkan API의 장점을 활용한 고성능 렌더링
+- **Low-Level 제어**: Vulkan API를 통한 명시적 리소스 관리 및 파이프라인 제어
+- **모듈화 아키텍처**: 확장성과 유지보수성을 고려한 Modern C++ 기반 설계
+- **성능 최적화**: 멀티스레딩, 메모리 풀링 등 엔진 레벨에서의 최적화 기법 연구
+- **크로스 플랫폼**: Windows/Linux 지원 및 콘솔 아키텍처를 고려한 설계 방향성
 
 ### 기술 스택
-- **그래픽스 API**: Vulkan 1.3+
+- **그래픽스 API**: Vulkan 1.3+ (Explicit Synchronization, Memory Barrier)
+- **언어 및 표준**: C++17 (Smart Pointers, RAII, STL)
 - **윈도우 시스템**: GLFW
 - **수학 라이브러리**: GLM
-- **UI 시스템**: Dear ImGui
-- **3D 모델 로딩**: Assimp
-- **텍스처 로딩**: STB, KTX
-- **빌드 시스템**: CMake + vcpkg
-- **컴파일러**: MSVC 2022+ / GCC 11+ / Clang 14+
+- **UI 시스템**: Dear ImGui (Docking, Multi-viewport)
+- **자산 관리**: Assimp (Model Loading), STB/KTX (Texture)
+- **빌드 시스템**: CMake (Modern CMake Pattern) + vcpkg
+- **개발 환경**: MSVC 2022 / RenderDoc / Vulkan Validation Layers
 
 ## ✅ 완성된 기능
 
@@ -174,6 +175,23 @@ make -j$(nproc)
 - **UI 기능 확장** - 회전축 조절, 컬러 모드 전환
 - **빌드 시스템 개선** - 자동 셰이더 컴파일 통합
 
+## 💡 기술적 특징 (Technical Highlights)
+
+### 1. Explicit Resource Management
+- **Memory Management**: 버퍼 및 이미지 메모리의 수동 할당/해제, 오프셋 관리
+- **Synchronization**: `VkFence`, `VkSemaphore`를 활용한 CPU-GPU 및 GPU Queue 간 동기화
+- **Command Buffer**: 커맨드 버퍼의 라이프사이클 관리 및 재사용 전략
+
+### 2. Modern C++ Architecture
+- **RAII Pattern**: `std::unique_ptr`, `std::shared_ptr`를 활용한 자동 리소스 정리
+- **Zero-Cost Abstraction**: 불필요한 가상 함수 호출 최소화 및 인라인 최적화 고려
+- **Type Safety**: `enum class` 및 `constexpr` 활용으로 컴파일 타임 안정성 확보
+
+### 3. Debugging & Profiling
+- **Validation Layers**: 개발 단계에서 Vulkan 스펙 준수 여부 엄격 검사
+- **Debug Utils**: 객체 네이밍(Object Naming)을 통한 디버깅 효율성 증대
+- **Vulkan Best Practices**: 리소스 바인딩 갱신 최소화 등 성능 고려 설계
+
 ## 🚀 로드맵
 
 ### Phase 1: 기초 렌더링 (완료)
@@ -202,12 +220,10 @@ make -j$(nproc)
   - 애니메이션 기초
 
 ### Phase 3: 텍스처 및 재질
-- [ ] **텍스처 시스템**
-  - 2D 텍스처 로딩 (PNG, JPG, KTX)
-  - 밉맵 생성
-  - 텍스처 아틀라스
-- [ ] **기본 재질 시스템**
-  - Diffuse/Specular 맵핑
+- [ ] **3D 메시 렌더링**
+  - [x] Mesh 클래스 (Vertex/Index Buffer, RAII)
+  - [x] Model 클래스 (Assimp 연동, Resource Management)
+  - [ ] 텍스처 매핑 (Diffuse/Specular Map)
   - 노멀 맵핑
   - 머티리얼 에디터 UI
 - [ ] **조명 시스템**
@@ -239,11 +255,12 @@ make -j$(nproc)
   - 서브서피스 스캐터링
   - 셸 셰이딩 (모피/잔디)
   - 볼류메트릭 렌더링
-- [ ] **최적화**
-  - 프러스텀 컬링
-  - 오클루전 컬링
-  - LOD (Level of Detail)
-  - GPU-Driven 렌더링
+- [ ] **최적화 & 성능 엔지니어링 (JD 우대사항 반영)**
+  - 프러스텀 컬링 (Frustum Culling)
+  - 오클루전 컬링 (Occlusion Culling)
+  - LOD (Level of Detail) 시스템
+  - GPU-Driven 렌더링 (Indirect Draw)
+  - 멀티스레드 커맨드 레코딩
 
 ### Phase 6: 레이트레이싱 (RTX)
 - [ ] **하드웨어 레이트레이싱**

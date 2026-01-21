@@ -33,6 +33,8 @@ set(ENGINE_RENDERER_SOURCES
     src/Engine/Renderer/VulkanDevice.cpp
     src/Engine/Renderer/VulkanSwapChain.cpp
     src/Engine/Renderer/VulkanRenderer.cpp
+    src/Engine/Renderer/Mesh.cpp
+    src/Engine/Renderer/Model.cpp
 )
 
 set(ENGINE_SCENE_SOURCES
@@ -47,6 +49,7 @@ set(SCENE_SOURCES
     src/Scenes/Basic/TriangleScene.cpp
     src/Scenes/Basic/CubeScene.cpp
     src/Scenes/Basic/CameraTestScene.cpp
+    src/Scenes/Basic/ModelLoadingScene.cpp
 )
 
 set(ALL_SOURCES
@@ -108,4 +111,9 @@ add_dependencies(${PROJECT_NAME} shaders)
 
 # Create shaders directory in source
 file(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/src/Shaders")
+
+# Copy models directory to build output
+file(COPY "${PROJECT_SOURCE_DIR}/models" DESTINATION "${PROJECT_BINARY_DIR}")
+file(COPY "${PROJECT_SOURCE_DIR}/models" DESTINATION "${PROJECT_BINARY_DIR}/Debug")
+file(COPY "${PROJECT_SOURCE_DIR}/models" DESTINATION "${PROJECT_BINARY_DIR}/Release")
 

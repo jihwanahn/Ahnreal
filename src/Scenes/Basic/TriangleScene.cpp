@@ -16,26 +16,26 @@
 
 namespace AhnrealEngine {
 
-    VkVertexInputBindingDescription Vertex::getBindingDescription() {
+    VkVertexInputBindingDescription TriangleVertex::getBindingDescription() {
         VkVertexInputBindingDescription bindingDescription{};
         bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(Vertex);
+        bindingDescription.stride = sizeof(TriangleVertex);
         bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         return bindingDescription;
     }
 
-    std::vector<VkVertexInputAttributeDescription> Vertex::getAttributeDescriptions() {
+    std::vector<VkVertexInputAttributeDescription> TriangleVertex::getAttributeDescriptions() {
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
 
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
         attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[0].offset = offsetof(Vertex, pos);
+        attributeDescriptions[0].offset = offsetof(TriangleVertex, pos);
 
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
         attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[1].offset = offsetof(Vertex, color);
+        attributeDescriptions[1].offset = offsetof(TriangleVertex, color);
 
         return attributeDescriptions;
     }
@@ -231,8 +231,8 @@ namespace AhnrealEngine {
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-        auto bindingDescription = Vertex::getBindingDescription();
-        auto attributeDescriptions = Vertex::getAttributeDescriptions();
+        auto bindingDescription = TriangleVertex::getBindingDescription();
+        auto attributeDescriptions = TriangleVertex::getAttributeDescriptions();
 
         vertexInputInfo.vertexBindingDescriptionCount = 1;
         vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());

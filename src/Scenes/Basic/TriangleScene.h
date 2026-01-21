@@ -11,7 +11,7 @@ namespace AhnrealEngine {
 
     class VulkanDevice;
 
-    struct Vertex {
+    struct TriangleVertex {
         glm::vec2 pos;
         glm::vec3 color;
 
@@ -52,7 +52,7 @@ namespace AhnrealEngine {
         VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
         VkPipeline graphicsPipeline = VK_NULL_HANDLE;
         
-        std::vector<Vertex> vertices = {
+        std::vector<TriangleVertex> vertices = {
             {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
             {{0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}},
             {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}

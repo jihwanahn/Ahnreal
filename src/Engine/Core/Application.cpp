@@ -2,6 +2,7 @@
 #include "../../Scenes/Basic/CameraTestScene.h"
 #include "../../Scenes/Basic/CubeScene.h"
 #include "../../Scenes/Basic/TriangleScene.h"
+#include "../../Scenes/Basic/ModelLoadingScene.h"
 #include "../Renderer/VulkanDevice.h"
 #include "../Renderer/VulkanRenderer.h"
 #include "../Scene/Scene.h"
@@ -43,6 +44,9 @@ Application::Application() {
 
   auto cameraTestScene = std::make_unique<CameraTestScene>();
   sceneManager->addScene(std::move(cameraTestScene));
+
+  auto modelLoadingScene = std::make_unique<ModelLoadingScene>();
+  sceneManager->addScene(std::move(modelLoadingScene));
 
   sceneManager->setCurrentScene("Triangle Scene", renderer.get());
 
